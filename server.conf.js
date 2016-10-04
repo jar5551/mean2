@@ -125,7 +125,7 @@ routes(app, router, passport);
 
 // ### Ignition Phase
 
-server.listen(port);
+server.listen(3000);
 
 // Shoutout to the user
 console.log(`Wizardry is afoot on port ${port}`);
