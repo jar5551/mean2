@@ -45,7 +45,9 @@ import {Recipes} from './recipes/recipes.component';
   pipes: [],
   // Load our main `Sass` file into our `app` `component`
   styleUrls: [require('!style!css!sass!../sass/main.scss')],
-  template: `
+  template: require('./app.html')
+
+  /*template: `
     <md-content>
       <md-toolbar color="primary">
           <span>{{ name }}</span>
@@ -79,7 +81,7 @@ import {Recipes} from './recipes/recipes.component';
         <span>Angular 2 MEAN Webpack Starter by <a [href]="url">@datatype_void</a></span>
       </footer>
     </md-content>
-  `
+  `*/
 })
 @RouteConfig([
   { path: '/', name: 'Index', component: Home, useAsDefault: true },
