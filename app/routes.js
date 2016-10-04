@@ -67,10 +67,10 @@ export default (app, router, passport) => {
   // Pass in our Express app and Router
   todoRoutes(app, router);
 
-	recipeRoutes(app, router);
+  recipeRoutes(app, router);
 
-	// All of our routes will be prefixed with /api
-	app.use('/api', router);
+  // All of our routes will be prefixed with /api
+  app.use('/api', router);
 
   // ### Frontend Routes
 
@@ -79,6 +79,6 @@ export default (app, router, passport) => {
 
     // Load our src/app.html file
     //** Note that the root is set to the parent of this folder, ie the app root **
-    res.sendFile('/dist/index.html', { root: __dirname + "/../"});
+    res.sendFile('/dist/index.html', {root: __dirname + "/../"});
   });
 };
