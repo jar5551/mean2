@@ -173,7 +173,7 @@ gulp.task('serve', ['serve:watch']);
 gulp.task('serve:watch', () => {
 
   nodemon({
-    script : 'server.js',
+    script : 'app.js',
     ext : 'js'
   });
 });
