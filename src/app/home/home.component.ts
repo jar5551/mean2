@@ -6,6 +6,7 @@ import {Title} from './services/title';
 import {XLarge} from './directives/x-large';
 
 import {Accordion} from '../shared/components/accordion/accordion.component';
+import {Socket} from '../shared/services/socket'
 
 import {
   AccordionGroup
@@ -22,7 +23,7 @@ import {NgFor} from '@angular/common';
   selector: 'home',  // <home></home>
   // We need to tell Angular's Dependency Injection which providers are in our app.
   providers: [
-    Title
+    Title, Socket
   ],
   // We need to tell Angular's compiler which directives are in our template.
   // Doing so will allow Angular to attach our behavior to an element
@@ -69,7 +70,7 @@ export class Home {
 
   ngOnInit() {
     console.log('hello `Home` component');
-    this.socket = io('http://localhost:1337');
+    this.socket = io('/socket.io');
     // this.title.getData().subscribe(data => this.data = data);
   }
 

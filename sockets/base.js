@@ -12,6 +12,8 @@
 
 export default (io) => {
 
+  console.log(io);
+
   io.sockets.on('connect', (socket) => {
 
     console.log('a user connected');

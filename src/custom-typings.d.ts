@@ -104,3 +104,8 @@ interface Thenable<T> {
     onRejected?: (error: any) => void): Thenable<U>;
   catch<U>(onRejected?: (error: any) => U | Thenable<U>): Thenable<U>;
 }
+
+declare module 'socket.io-client' {
+  var e: any;
+  export = e;
+}
