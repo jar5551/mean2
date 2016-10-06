@@ -25,6 +25,8 @@ import {Home} from './home';
 // Import NgFor directive
 import {NgFor} from '@angular/common';
 
+import {Chat} from './chat/chat.component';
+
 // Import Todo component
 import {Todo} from './todo/todo.component';
 
@@ -46,46 +48,11 @@ import {Recipes} from './recipes/recipes.component';
   // Load our main `Sass` file into our `app` `component`
   styleUrls: [require('!style!css!sass!../sass/main.scss')],
   template: require('./app.html')
-
-  /*template: `
-    <md-content>
-      <md-toolbar color="primary">
-          <span>{{ name }}</span>
-          <span class="fill"></span>
-          <button md-button router-active [routerLink]=" ['Index'] ">
-            Index
-          </button>
-          <button md-button router-active [routerLink]=" ['Home'] ">
-            Home
-          </button>
-          <button md-button router-active [routerLink]=" ['Todo'] ">
-            Todo
-          </button>
-          <button md-button router-active [routerLink]=" ['Recipes'] ">
-            Recipes
-          </button>
-          <button md-button router-active [routerLink]=" ['About'] ">
-            About
-          </button>
-      </md-toolbar>
-
-      <md-progress-bar mode="indeterminate" color="primary" *ngIf="loading">
-      </md-progress-bar>
-
-      <router-outlet></router-outlet>
-
-      <pre class="app-state">this.appState.state = {{ appState.state | json }}</pre>
-
-      <footer>
-        <img [src]="angularLogo" width="7%">
-        <span>Angular 2 MEAN Webpack Starter by <a [href]="url">@datatype_void</a></span>
-      </footer>
-    </md-content>
-  `*/
 })
 @RouteConfig([
   { path: '/', name: 'Index', component: Home, useAsDefault: true },
   { path: '/home',  name: 'Home',  component: Home },
+  { path: '/chat', component: Chat, name: 'Chat' },
   { path: '/todo', component: Todo, name: 'Todo' },
   { path: '/redux', component: Recipes, name: 'Recipes' },
   // Async load a component using Webpack's require with
