@@ -20,6 +20,8 @@ import todoRoutes from './routes/_todo.router.js';
 // Load our API routes for the `recipe` component
 import recipeRoutes from './routes/_recipe.router.js';
 
+import chatRoutes from './routes/_chat.router.js';
+
 export default (app, router, passport) => {
 
   // ### Express Middlware to use for all requests
@@ -68,6 +70,8 @@ export default (app, router, passport) => {
   todoRoutes(app, router);
 
   recipeRoutes(app, router);
+
+  chatRoutes(app, router);
 
   // All of our routes will be prefixed with /api
   app.use('/api', router);

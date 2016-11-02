@@ -6,7 +6,12 @@
  */
 import {Component} from 'angular2/core';
 
+import {ChatService} from './chat.service';
+
 import {SocketService} from '../shared/services/socket'
+
+import {HTTP_PROVIDERS} from '@angular/http';
+
 
 /*
  * Chat
@@ -18,12 +23,20 @@ import {SocketService} from '../shared/services/socket'
   template: require('./chat.component.html'),
   // Load our main `Sass` file into our `Chat` component
   styleUrls: [require('!style!css!sass!./chat.component.scss')],
-  providers: [],
+  providers: [...HTTP_PROVIDERS, ChatService],
   directives: [],
   pipes: []
 })
 export class Chat {
 
-  constructor(
-  ) {}
+  private messages: Array<Chat> = [];
+
+  constructor(public ChatService: ChatService) {
+    console.log('Chat constructor go!');
+
+    ChatService.getAll()
+      .subscribe((res) => {
+        this.messages = res;
+      });
+  }
 }
