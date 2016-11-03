@@ -22,6 +22,10 @@ export default (io) => {
 
       console.log('a user disconnected');
     });
+
+    socket.on('create', () => {
+      console.log('create');
+    })
   });
 
 };

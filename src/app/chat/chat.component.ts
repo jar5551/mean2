@@ -36,8 +36,19 @@ export class Chat {
 
   private messages: Array<Chat> = [];
 
+  private SocketService: SocketService;
+
   constructor(public ChatService: ChatService) {
+
     console.log('Chat constructor go!');
+
+    this.SocketService = new SocketService();
+
+    this.SocketService
+      .get("messages")
+      .subscribe();
+
+    console.log(this.SocketService);
 
     ChatService.getAll()
       .subscribe((res) => {
@@ -50,6 +61,10 @@ export class Chat {
       .subscribe((res) => {
 
         this.messages.push(res);
+
+        this.SocketService.socket.emit('create', {
+          message: this.message
+        });
 
         //this.messages = res;
         this.message.message = '';
