@@ -1,12 +1,23 @@
-<p>
-    Chat Works!
-</p>
+<div id="chat">
+    <div class="container-fluid">
+        <p class="text-xs-center">
+            Chat Works!
+        </p>
 
-<div class="messages">
-    <!-- LOOP OVER THE TODOS IN $scope.todos -->
-    <div *ngFor="let message of messages">
-        {{ message.message }}
+        <div class="messages">
+            <!-- LOOP OVER THE TODOS IN $scope.todos -->
+            <div *ngFor="let message of messages" class="message">
+                {{ message.author }}: {{ message.message }}
+            </div>
+        </div>
+
+        <form class="form">
+            <div class="form-group">
+                <label for="messageTextarea">Wiadomość:</label>
+                <textarea class="form-control" id="messageTextarea" rows="2" [(ngModel)]="message.message" (keydown.Enter)="sendMessage($event)"></textarea>
+            </div>
+        </form>
+
     </div>
-
-
 </div>
+

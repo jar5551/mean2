@@ -29,6 +29,11 @@ import {HTTP_PROVIDERS} from '@angular/http';
 })
 export class Chat {
 
+  message = {
+    message: '',
+    author: 'test1',
+  };
+
   private messages: Array<Chat> = [];
 
   constructor(public ChatService: ChatService) {
@@ -38,5 +43,19 @@ export class Chat {
       .subscribe((res) => {
         this.messages = res;
       });
+  }
+
+  sendMessage(event) {
+    this.ChatService.createMessage(this.message)
+      .subscribe((res) => {
+
+        this.messages.push(res);
+
+        //this.messages = res;
+        this.message.message = '';
+      });
+
+    event.preventDefault();
+
   }
 }

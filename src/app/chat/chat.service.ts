@@ -30,6 +30,7 @@ export class ChatService {
 
   createMessage(data) {
 
+
     let headers = new Headers();
 
     headers.append('Content-Type', 'application/json');

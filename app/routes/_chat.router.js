@@ -6,6 +6,7 @@ import Chat from '../models/chat.model';
 
 export default (app, router) => {
   router.route('/chat')
+
     .post((req, res) => {
 
       Chat.create({
@@ -21,14 +22,18 @@ export default (app, router) => {
         // DEBUG
         console.log(`Message created: ${message}`);
 
-        Chat.find((err, messages) => {
+        /*Chat.find((err, messages) => {
           if(err)
             res.send(err);
 
           res.json(messages);
-        });
+        });*/
+
+        res.json(message);
+
       });
     })
+
     .get((req, res) => {
       Chat.find((err, todo) => {
 
