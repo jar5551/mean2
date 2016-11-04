@@ -44,9 +44,7 @@ export class Chat {
 
     this.SocketService = new SocketService();
 
-    this.SocketService
-      .get("messages")
-      .subscribe();
+    this.SocketService.getMessages();
 
     console.log(this.SocketService);
 
@@ -57,18 +55,26 @@ export class Chat {
   }
 
   sendMessage(event) {
+
+    this.SocketService.sendMessage(this.message);
+
+    //this.SocketService.create('test');
+
+
+    //this.messages = res;
+    this.message.message = '';
+    /*
     this.ChatService.createMessage(this.message)
       .subscribe((res) => {
 
         this.messages.push(res);
 
-        this.SocketService.socket.emit('create', {
-          message: this.message
-        });
+        //this.SocketService.create('test');
+
 
         //this.messages = res;
         this.message.message = '';
-      });
+      });*/
 
     event.preventDefault();
 

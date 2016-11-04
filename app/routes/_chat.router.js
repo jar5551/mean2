@@ -20,7 +20,7 @@ export default (app, router) => {
           res.send(err);
 
         // DEBUG
-        console.log(`Message created: ${message}`);
+        //console.log(`Message created: ${message}`);
 
         /*Chat.find((err, messages) => {
           if(err)
