@@ -160,10 +160,9 @@ export default (app, router, passport, auth, admin) => {
   router.get('/auth/setup', (req, res) => {
 
     User.create({
-      username: 'user10',
-
+      username: 'user11',
       password: 'password',
-
+      email: 'user11@test.pl',
     }, (err, message) => {
       if (err)
         res.send(err);
