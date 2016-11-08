@@ -20,30 +20,33 @@ import bcrypt from 'bcrypt-nodejs';
 // Define the schema for the showcase item
 let userSchema = mongoose.Schema({
 
-  local : {
+  username: {type: String, unique: true, required: true},
 
-    username : { type : String, unique : true },
+  password: {type: String, required: true},
 
-    password : String,
+});
 
-    email : { type : String, unique : true }
-  },
+userSchema.pre('save', function (next) {
 
-  role : { type : String }
+  let user = this;
+
+  user.password = user.generateHash(user.password);
+
+  next();
 });
 
 // ## Methods
 
 // ### Generate a hash
-userSchema.methods.generateHash = function(password) {
+userSchema.methods.generateHash = function (password) {
 
   return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
 };
 
 // ### Check if password is valid
-userSchema.methods.validPassword = function(password) {
+userSchema.methods.validPassword = function (password) {
 
-  return bcrypt.compareSync(password, this.local.password);
+  return bcrypt.compareSync(password, this.password);
 };
 
 // Create the model for users and expose it to the app

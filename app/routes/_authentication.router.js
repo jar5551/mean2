@@ -78,7 +78,7 @@ export default (app, router, passport, auth, admin) => {
         res.send(req.user);
       });
 
-    }) (req, res, next);
+    })(req, res, next);
   });
 
   router.post('/auth/signup', (req, res, next) => {
@@ -108,7 +108,7 @@ export default (app, router, passport, auth, admin) => {
       // Set HTTP status code `204 No Content`
       res.sendStatus(204);
 
-    }) (req, res, next);
+    })(req, res, next);
   });
 
   // Route to log a user out
@@ -138,13 +138,13 @@ export default (app, router, passport, auth, admin) => {
     User.remove({
 
       // Model.find `$or` Mongoose condition
-      $or : [
+      $or: [
 
-        { 'local.username' : req.params.uid },
+        {'local.username': req.params.uid},
 
-        { 'local.email' : req.params.uid },
+        {'local.email': req.params.uid},
 
-        { '_id' : ObjectId(req.params.uid) }
+        {'_id': ObjectId(req.params.uid)}
       ]
     }, (err) => {
 
@@ -156,4 +156,55 @@ export default (app, router, passport, auth, admin) => {
       res.sendStatus(204);
     });
   });
+
+  router.get('/auth/setup', (req, res) => {
+
+    User.create({
+      username: 'user10',
+
+      password: 'password',
+
+    }, (err, message) => {
+      if (err)
+        res.send(err);
+
+      res.json(message);
+
+    });
+
+  });
+
+  router.get('/auth/users', (req, res) => {
+    User.find((err, users) => {
+      if (err)
+        res.send(err);
+
+      else
+        res.json(users);
+    });
+  });
+
+  router.post('/auth/login2', (req, res) => {
+
+    let login = new User({
+      username: req.body.username,
+      password: req.body.password
+    });
+
+
+    User.findOne({'local.username': login.local.username}, (err, user) => {
+
+      if (err)
+        res.send(err);
+
+      else {
+        if (user.local.password === login.local.password) {
+          res.json({'error': false});
+        } else {
+          res.json({'error': true});
+        }
+      }
+
+    });
+  })
 };
