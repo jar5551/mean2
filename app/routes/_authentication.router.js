@@ -22,10 +22,14 @@
 
 // Load user model
 import User from '../models/user.model.js';
+import passportJWT from 'passport-jwt';
+import jwt from 'jsonwebtoken';
 
 // Load the Mongoose ObjectId function to cast string as
 // ObjectId
 let ObjectId = require('mongoose').Types.ObjectId;
+let ExtractJwt = passportJWT.ExtractJwt;
+let JwtStrategy = passportJWT.Strategy;
 
 export default (app, router, passport, auth, admin) => {
 
@@ -191,19 +195,135 @@ export default (app, router, passport, auth, admin) => {
     });
 
 
-    User.findOne({'local.username': login.local.username}, (err, user) => {
+    User.findOne({'username': login.username}, (err, user) => {
 
       if (err)
         res.send(err);
 
       else {
-        if (user.local.password === login.local.password) {
-          res.json({'error': false});
-        } else {
-          res.json({'error': true});
-        }
+        /*if (user.password === login.password) {
+         res.json({'error': false});
+         } else {
+         res.json({'error': true});
+         }*/
+
+        res.json({'user': user});
+
       }
 
     });
-  })
+  });
+
+  router.get('/auth/test', (req, res) => {
+    res.send('aaaa');
+    console.log('1');
+
+    let jwtOptions = {};
+    jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeader();
+    jwtOptions.secretOrKey = 'tasmanianDevil';
+
+    var strategy = new JwtStrategy(jwtOptions, function (jwt_payload, next) {
+      console.log('payload received', jwt_payload);
+      // usually this would be a database call:
+      var user = users[_.findIndex(users, {id: jwt_payload.id})];
+      if (user) {
+        next(null, user);
+      } else {
+        next(null, false);
+      }
+    });
+
+    console.log(strategy);
+
+    passport.use(strategy);
+  });
+
+  router.post('/auth/test/login', (req, res, next) => {
+    let jwtOptions = {};
+    jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeader();
+    jwtOptions.secretOrKey = 'tasmanianDevil';
+
+    /*if (req.body.username && req.body.password) {
+      var username = req.body.username;
+      var password = req.body.password;
+    }*/
+    // usually this would be a database call:
+
+    passport.authenticate('local-login', (err, user, info) => {
+
+      if (err)
+        return next(err);
+
+      // If no user is returned...
+      if (!user) {
+
+        // Set HTTP status code `401 Unauthorized`
+        res.status(401);
+
+        // Return the info message
+        return next(info.loginMessage);
+      }
+
+      // Use login function exposed by Passport to establish a login
+      // session
+      req.login(user, (err) => {
+
+        if (err)
+          return next(err);
+
+        // Set HTTP status code `200 OK`
+        res.status(200);
+
+        // Return the user object
+        var payload = {id: user.id};
+        var token = jwt.sign(payload, jwtOptions.secretOrKey);
+
+        res.json({message: "ok", token: token});
+      });
+
+    })(req, res, next);
+
+    /*User.findOne({
+
+      // Model.find `$or` Mongoose condition
+      $or : [
+
+        { 'username' : username.toLowerCase() },
+
+        { 'email' : username.toLowerCase() }
+      ]
+    }, (err, user) => {
+
+      // If there are any errors, return the error before anything
+      // else
+      if (err) {
+        res.send(err);
+      }
+
+
+      // If no user is found, return a message
+      if (!user) {
+        res.status(401).json({message: "no such user found"});
+        return next("no such user found");
+      }
+
+      // If the user is found but the password is incorrect
+      if (!user.validPassword(password)) {
+        res.status(401).json({message: "passwords did not match"});
+      }
+
+      var payload = {id: user.id};
+      var token = jwt.sign(payload, jwtOptions.secretOrKey);
+
+      res.json({message: "ok", token: token});
+
+      // Otherwise all is well; return successful user
+      //return done(null, user);
+
+
+
+    });*/
+
+
+  });
 };

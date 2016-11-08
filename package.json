@@ -96,6 +96,7 @@
     "method-override": "^2.3.6",
     "mongoose": "^4.4.19",
     "passport": "^0.3.2",
+    "passport-jwt": "^2.2.0",
     "passport-local": "^1.0.0",
     "rxjs": "5.0.0-beta.6",
     "socket.io": "^1.4.6",

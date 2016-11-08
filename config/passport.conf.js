@@ -76,9 +76,9 @@ export default (passport) => {
 
       _id : user._id,
 
-      username : user.local.username,
+      username : user.username
 
-      role : user.role
+      //role : user.role
     };
 
     done(null, sessionUser);
@@ -198,9 +198,9 @@ export default (passport) => {
         // Model.find `$or` Mongoose condition
         $or : [
 
-          { 'local.username' : username },
+          { 'username' : username },
 
-          { 'local.email' : req.body.email }
+          { 'email' : req.body.email }
         ]
       }, (err, user) => {
 
@@ -324,9 +324,9 @@ export default (passport) => {
       // Model.find `$or` Mongoose condition
       $or : [
 
-        { 'local.username' : username.toLowerCase() },
+        { 'username' : username.toLowerCase() },
 
-        { 'local.email' : username.toLowerCase() }
+        { 'email' : username.toLowerCase() }
       ]
     }, (err, user) => {
 

@@ -20,7 +20,7 @@ import bcrypt from 'bcrypt-nodejs';
 // Define the schema for the showcase item
 let userSchema = mongoose.Schema({
 
-  username: {type: String, unique: true, required: true},
+  username: {type: String, required: true},
 
   password: {type: String, required: true},
 
