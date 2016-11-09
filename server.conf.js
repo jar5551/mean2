@@ -73,8 +73,11 @@ import passportConf from './config/passport.conf.js';
 
 import jwtConf from './config/jwt.conf.js';
 
+let jwtOptions = jwtConf(passportJWT);
+
 // Pass Passport configuration our PassportJS instance
-passportConf(passport);
+passportConf(passport, passportJWT, jwtOptions);
+//jwtConf(passportJWT);
 
 
 if (process.env.NODE_ENV === 'development' ||
@@ -126,7 +129,7 @@ let router = express.Router();
 import routes from './app/routes';
 
 // Pass in instances of the express app, router, and passport
-routes(app, router, passport);
+routes(app, router, passport, jwtOptions);
 
 // ### Ignition Phase
 

@@ -22,16 +22,13 @@
 
 // Load user model
 import User from '../models/user.model.js';
-import passportJWT from 'passport-jwt';
 import jwt from 'jsonwebtoken';
 
 // Load the Mongoose ObjectId function to cast string as
 // ObjectId
 let ObjectId = require('mongoose').Types.ObjectId;
-let ExtractJwt = passportJWT.ExtractJwt;
-let JwtStrategy = passportJWT.Strategy;
 
-export default (app, router, passport, auth, admin) => {
+export default (app, router, passport, auth, admin, jwtOptions) => {
 
   // ### Authentication API Routes
 
@@ -177,7 +174,7 @@ export default (app, router, passport, auth, admin) => {
 
   });
 
-  router.get('/auth/users', (req, res) => {
+  router.get('/auth/users', passport.authenticate('jwt', { session: false }), (req, res) => {
     User.find((err, users) => {
       if (err)
         res.send(err);
@@ -214,41 +211,7 @@ export default (app, router, passport, auth, admin) => {
     });
   });
 
-  router.get('/auth/test', (req, res) => {
-    res.send('aaaa');
-    console.log('1');
-
-    let jwtOptions = {};
-    jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeader();
-    jwtOptions.secretOrKey = 'tasmanianDevil';
-
-    var strategy = new JwtStrategy(jwtOptions, function (jwt_payload, next) {
-      console.log('payload received', jwt_payload);
-      // usually this would be a database call:
-      var user = users[_.findIndex(users, {id: jwt_payload.id})];
-      if (user) {
-        next(null, user);
-      } else {
-        next(null, false);
-      }
-    });
-
-    console.log(strategy);
-
-    passport.use(strategy);
-  });
-
   router.post('/auth/test/login', (req, res, next) => {
-    let jwtOptions = {};
-    jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeader();
-    jwtOptions.secretOrKey = 'tasmanianDevil';
-
-    /*if (req.body.username && req.body.password) {
-      var username = req.body.username;
-      var password = req.body.password;
-    }*/
-    // usually this would be a database call:
-
     passport.authenticate('local-login', (err, user, info) => {
 
       if (err)
@@ -276,7 +239,9 @@ export default (app, router, passport, auth, admin) => {
 
         // Return the user object
         var payload = {id: user.id};
-        var token = jwt.sign(payload, jwtOptions.secretOrKey);
+        var token = jwt.sign(payload, jwtOptions.secretOrKey, {
+          expiresIn: 60
+        });
 
         res.json({message: "ok", token: token});
       });
@@ -324,6 +289,6 @@ export default (app, router, passport, auth, admin) => {
 
     });*/
 
-
   });
+
 };

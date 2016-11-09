@@ -3,11 +3,9 @@
  */
 
 export default (passportJWT) => {
-
-  let ExtractJwt = passportJWT.ExtractJwt;
-  var jwtOptions = {};
-  jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeader();
-  jwtOptions.secretOrKey = 'tasmanianDevil';
+  return {
+    jwtFromRequest: passportJWT.ExtractJwt.fromAuthHeader(),
+    secretOrKey: '6a4f243f91f461dc1c691a61aedbb0abff02a4f4'
+  }
 }
-
 

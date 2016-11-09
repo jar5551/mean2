@@ -16,7 +16,24 @@ import LocalStrategy from 'passport-local';
 // Load user model
 import User from '../app/models/user.model.js';
 
-export default (passport) => {
+export default (passport, passportJWT, jwtOptions) => {
+  let JwtStrategy = passportJWT.Strategy;
+
+  let strategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {
+    console.log('payload received', jwt_payload);
+    // usually this would be a database call:
+    //var user = User.findIndex({id: jwt_payload.id});
+    let user = User.findOne({
+      id: jwt_payload.id
+    });
+    if (user) {
+      next(null, user);
+    } else {
+      next(null, false);
+    }
+  });
+
+  passport.use(strategy);
 
   // Define length boundariess for expected parameters
   let bounds = {

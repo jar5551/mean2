@@ -22,7 +22,7 @@ import recipeRoutes from './routes/_recipe.router.js';
 
 import chatRoutes from './routes/_chat.router.js';
 
-export default (app, router, passport) => {
+export default (app, router, passport, jwtOptions) => {
 
   // ### Express Middlware to use for all requests
   router.use((req, res, next) => {
@@ -62,7 +62,7 @@ export default (app, router, passport) => {
 
   // Pass in our Express app and Router.
   // Also pass in auth & admin middleware and Passport instance
-  authRoutes(app, router, passport, auth, admin);
+  authRoutes(app, router, passport, auth, admin, jwtOptions);
 
   // #### RESTful API Routes
 
