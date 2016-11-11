@@ -33,7 +33,7 @@ import {Todo} from './todo/todo.component';
 // Import Recipes component
 import {Recipes} from './recipes/recipes.component';
 
-import {Admin} from './admin/admin.component';
+import {Login} from './login/login.component';
 /*
  * App Component
  * Top Level Component
@@ -54,7 +54,7 @@ import {Admin} from './admin/admin.component';
   { path: '/', name: 'Index', component: Home, useAsDefault: true },
   { path: '/home',  name: 'Home',  component: Home },
   { path: '/chat', component: Chat, name: 'Chat' },
-  { path: '/admin', component: Admin, name: 'Admin' },
+  { path: '/login', component: Login, name: 'Login' },
   { path: '/todo', component: Todo, name: 'Todo' },
   { path: '/redux', component: Recipes, name: 'Recipes' },
   // Async load a component using Webpack's require with
