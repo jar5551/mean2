@@ -13,6 +13,7 @@
 
 // Grab the Mongoose module
 import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
 
 // Import library to hash passwords
 import bcrypt from 'bcrypt-nodejs';
@@ -23,6 +24,8 @@ let userSchema = mongoose.Schema({
   username: {type: String, required: true},
 
   password: {type: String, required: true},
+
+  passwordDate: {type: Date, default: Date.now},
 
   email: {type: String, required: true, index: {unique: true}}
 
@@ -50,6 +53,7 @@ userSchema.methods.validPassword = function (password) {
 
   return bcrypt.compareSync(password, this.password);
 };
+
 
 // Create the model for users and expose it to the app
 export default mongoose.model('User', userSchema);

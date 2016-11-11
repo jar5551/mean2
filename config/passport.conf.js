@@ -15,64 +15,53 @@ import LocalStrategy from 'passport-local';
 
 // Load user model
 import User from '../app/models/user.model.js';
+import InvalidToken from '../app/models/inalid-token.model';
 
-export default (passport, passportJWT, jwtOptions) => {
+import jwtConf from './jwt.conf';
+
+export default (passport, passportJWT, jwt) => {
+  let jwtOptions = jwtConf(passportJWT);
+
   let JwtStrategy = passportJWT.Strategy;
-
-  let strategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {
-    console.log('payload received', jwt_payload);
-    // usually this would be a database call:
-    //var user = User.findIndex({id: jwt_payload.id});
-    let user = User.findOne({
-      id: jwt_payload.id
-    });
-    if (user) {
-      next(null, user);
-    } else {
-      next(null, false);
-    }
-  });
-
-  passport.use(strategy);
 
   // Define length boundariess for expected parameters
   let bounds = {
 
-    username : {
+    username: {
 
-      minLength : 3,
+      minLength: 3,
 
-      maxLength : 16
+      maxLength: 16
     },
 
-    password : {
+    password: {
 
-      minLength : 8,
+      minLength: 8,
 
-      maxLength : 128
+      maxLength: 128
     },
 
-    email : {
+    email: {
 
-      minLength : 5,
+      minLength: 5,
 
-      maxLength : 256
+      maxLength: 256
     }
   };
 
   // Function to check a string against a REGEX for email validity
   let validateEmail = (email) => {
 
-      let re = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+    let re = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
 
-      return re.test(email);
+    return re.test(email);
   };
 
   // Helper function to validate string length
   let checkLength = (string, min, max) => {
 
     // If the string is outside the passed in bounds...
-    if(string.length > max || string.length < min)
+    if (string.length > max || string.length < min)
       return false;
 
     else
@@ -91,9 +80,9 @@ export default (passport, passportJWT, jwtOptions) => {
 
     let sessionUser = {
 
-      _id : user._id,
+      _id: user._id,
 
-      username : user.username
+      username: user.username
 
       //role : user.role
     };
@@ -119,158 +108,189 @@ export default (passport, passportJWT, jwtOptions) => {
 
   // By default, if there is no name, it would just be called 'local'
 
-  passport.use('local-signup', new LocalStrategy({
+  passport.use('jwt', new JwtStrategy(jwtOptions, function (jwt_payload, done) {
 
-    // By default, the local strategy uses username and password
-    usernameField : 'username',
-
-    passwordField : 'password',
-
-    // Allow the entire request to be passed back to the callback
-    passReqToCallback : true
-  },
-
-  (req, username, password, done) => {
-
-    // ## Data Checks
-
-    // If the length of the username string is too long/short,
-    // invoke verify callback
-    if(!checkLength(username, bounds.username.minLength, bounds.username.maxLength)) {
-
-      // ### Verify Callback
-
-      // Invoke `done` with `false` to indicate authentication
-      // failure
-      return done(null,
-
-        false,
-
-        // Return info message object
-        { signupMessage : 'Invalid username length.' }
-      );
-    }
-
-    // If the length of the password string is too long/short,
-    // invoke verify callback
-    if(!checkLength(password, bounds.password.minLength, bounds.password.maxLength)) {
-
-      // ### Verify Callback
-
-      // Invoke `done` with `false` to indicate authentication
-      // failure
-      return done(null,
-
-        false,
-
-        // Return info message object
-        { signupMessage : 'Invalid password length.' }
-      );
-    }
-
-    // If the length of the email string is too long/short,
-    // invoke verify callback
-    if(!checkLength(req.body.email, bounds.email.minLength, bounds.email.maxLength)) {
-
-      // ### Verify Callback
-
-      // Invoke `done` with `false` to indicate authentication
-      // failure
-      return done(null,
-
-        false,
-
-        // Return info message object
-        { signupMessage : 'Invalid email length.' }
-      );
-    }
-
-    // If the string is not a valid email...
-    if(!validateEmail(req.body.email)) {
-
-      // ### Verify Callback
-
-      // Invoke `done` with `false` to indicate authentication
-      // failure
-      return done(null,
-
-        false,
-
-        // Return info message object
-        { signupMessage : 'Invalid email address.' }
-      );
-    }
-
-    // Asynchronous
-    // User.findOne will not fire unless data is sent back
-    process.nextTick(() => {
-
-      // Find a user whose email or username is the same as the passed
-      // in data
-
-      // We are checking to see if the user trying to login already
-      // exists
-      User.findOne({
-
-        // Model.find `$or` Mongoose condition
-        $or : [
-
-          { 'username' : username },
-
-          { 'email' : req.body.email }
-        ]
-      }, (err, user) => {
-
-        // If there are any errors, return the error
-        if (err)
-          return done(err);
-
-        // If a user exists with either of those ...
-        if(user) {
-
-          // ### Verify Callback
-
-          // Invoke `done` with `false` to indicate authentication
-          // failure
-          return done(null,
-
-            false,
-
-            // Return info message object
-            { signupMessage : 'That username/email is already ' +
-            'taken.' }
-          );
-
-        } else {
-
-          // If there is no user with that email or username...
-
-          // Create the user
-          let newUser = new User();
-
-          // Set the user's local credentials
-
-          // Combat case sensitivity by converting username and
-          // email to lowercase characters
-          newUser.local.username = username.toLowerCase();
-
-          newUser.local.email = req.body.email.toLowerCase();
-
-          // Hash password with model method
-          newUser.local.password = newUser.generateHash(password);
-
-          // Save the new user
-          newUser.save((err) => {
-
-            if (err)
-              throw err;
-
-            return done(null, newUser);
-          });
-        }
-      });
+    InvalidToken.find({
+      token: jwt.sign(jwt_payload, jwtOptions.secretOrKey)
+    }, (err, docs) => {
+      if (err) {
+        return done(err, false);
+      }
+      if(!docs.length) {
+        User.findById(jwt_payload.id, (err, user) => {
+          if (err) {
+            return done(err, false);
+          }
+          if (user) {
+            if(new Date(user.passwordDate).getTime() > new Date(parseInt(jwt_payload.iat + '000')).getTime()) {
+              done(null, false);
+            }
+            done(null, user);
+          } else {
+            done(null, false);
+          }
+        });
+      } else {
+        done(null, false);
+      }
     });
   }));
+
+  passport.use('local-signup', new LocalStrategy({
+
+      // By default, the local strategy uses username and password
+      usernameField: 'username',
+
+      passwordField: 'password',
+
+      // Allow the entire request to be passed back to the callback
+      passReqToCallback: true
+    },
+
+    (req, username, password, done) => {
+
+      // ## Data Checks
+
+      // If the length of the username string is too long/short,
+      // invoke verify callback
+      if (!checkLength(username, bounds.username.minLength, bounds.username.maxLength)) {
+
+        // ### Verify Callback
+
+        // Invoke `done` with `false` to indicate authentication
+        // failure
+        return done(null,
+
+          false,
+
+          // Return info message object
+          {signupMessage: 'Invalid username length.'}
+        );
+      }
+
+      // If the length of the password string is too long/short,
+      // invoke verify callback
+      if (!checkLength(password, bounds.password.minLength, bounds.password.maxLength)) {
+
+        // ### Verify Callback
+
+        // Invoke `done` with `false` to indicate authentication
+        // failure
+        return done(null,
+
+          false,
+
+          // Return info message object
+          {signupMessage: 'Invalid password length.'}
+        );
+      }
+
+      // If the length of the email string is too long/short,
+      // invoke verify callback
+      if (!checkLength(req.body.email, bounds.email.minLength, bounds.email.maxLength)) {
+
+        // ### Verify Callback
+
+        // Invoke `done` with `false` to indicate authentication
+        // failure
+        return done(null,
+
+          false,
+
+          // Return info message object
+          {signupMessage: 'Invalid email length.'}
+        );
+      }
+
+      // If the string is not a valid email...
+      if (!validateEmail(req.body.email)) {
+
+        // ### Verify Callback
+
+        // Invoke `done` with `false` to indicate authentication
+        // failure
+        return done(null,
+
+          false,
+
+          // Return info message object
+          {signupMessage: 'Invalid email address.'}
+        );
+      }
+
+      // Asynchronous
+      // User.findOne will not fire unless data is sent back
+      process.nextTick(() => {
+
+        // Find a user whose email or username is the same as the passed
+        // in data
+
+        // We are checking to see if the user trying to login already
+        // exists
+        User.findOne({
+
+          // Model.find `$or` Mongoose condition
+          $or: [
+
+            {'username': username},
+
+            {'email': req.body.email}
+          ]
+        }, (err, user) => {
+
+          // If there are any errors, return the error
+          if (err)
+            return done(err);
+
+          // If a user exists with either of those ...
+          if (user) {
+
+            // ### Verify Callback
+
+            // Invoke `done` with `false` to indicate authentication
+            // failure
+            return done(null,
+
+              false,
+
+              // Return info message object
+              {
+                signupMessage: 'That username/email is already ' +
+                'taken.'
+              }
+            );
+
+          } else {
+
+            // If there is no user with that email or username...
+
+            // Create the user
+            let newUser = new User();
+
+            // Set the user's local credentials
+
+            // Combat case sensitivity by converting username and
+            // email to lowercase characters
+            newUser.username = username.toLowerCase();
+
+            newUser.email = req.body.email.toLowerCase();
+
+            // Hash password with model method
+            //newUser.password = newUser.generateHash(password);
+            newUser.password = password;
+
+            // Save the new user
+            newUser.save((err) => {
+
+              if (err)
+                throw err;
+
+              return done(null, newUser);
+            });
+          }
+        });
+      });
+    }));
 
   // # Local Login
 
@@ -281,101 +301,106 @@ export default (passport, passportJWT, jwtOptions) => {
 
   passport.use('local-login', new LocalStrategy({
 
-    // By default, local strategy uses username and password
-    usernameField : 'username',
+      // By default, local strategy uses username and password
+      usernameField: 'username',
 
-    passwordField : 'password',
+      passwordField: 'password',
 
-    // Allow the entire request to be passed back to the callback
-    passReqToCallback : true
-  },
+      // Allow the entire request to be passed back to the callback
+      passReqToCallback: true
+    },
 
-  (req, username, password, done) => {
+    (req, username, password, done) => {
 
-    // ## Data Checks
+      // ## Data Checks
 
-    // If the length of the username string is too long/short,
-    // invoke verify callback.
-    // Note that the check is against the bounds of the email
-    // object. This is because emails can be used to login as
-    // well.
-    if(!checkLength(username, bounds.username.minLength, bounds.email.maxLength)) {
+      // If the length of the username string is too long/short,
+      // invoke verify callback.
+      // Note that the check is against the bounds of the email
+      // object. This is because emails can be used to login as
+      // well.
+      if (!checkLength(username, bounds.username.minLength, bounds.email.maxLength)) {
 
-      // ### Verify Callback
+        // ### Verify Callback
 
-      // Invoke `done` with `false` to indicate authentication
-      // failure
-      return done(null,
-
-        false,
-
-        // Return info message object
-        { loginMessage : 'Invalid username/email length.' }
-      );
-    }
-
-    // If the length of the password string is too long/short,
-    // invoke verify callback
-    if(!checkLength(password, bounds.password.minLength, bounds.password.maxLength)) {
-
-      // ### Verify Callback
-
-      // Invoke `done` with `false` to indicate authentication
-      // failure
-      return done(null,
-
-        false,
-
-        // Return info message object
-        { loginMessage : 'Invalid password length.' }
-      );
-    }
-
-    // Find a user whose email or username is the same as the passed
-    // in data
-
-    // Combat case sensitivity by converting username to lowercase
-    // characters
-    User.findOne({
-
-      // Model.find `$or` Mongoose condition
-      $or : [
-
-        { 'username' : username.toLowerCase() },
-
-        { 'email' : username.toLowerCase() }
-      ]
-    }, (err, user) => {
-
-      // If there are any errors, return the error before anything
-      // else
-      if (err)
-        return done(err);
-
-      // If no user is found, return a message
-      if (!user) {
-
+        // Invoke `done` with `false` to indicate authentication
+        // failure
         return done(null,
 
           false,
 
-          { loginMessage : 'That user was not found. ' +
-          'Please enter valid user credentials.' }
+          // Return info message object
+          {loginMessage: 'Invalid username/email length.'}
         );
       }
 
-      // If the user is found but the password is incorrect
-      if (!user.validPassword(password)) {
+      // If the length of the password string is too long/short,
+      // invoke verify callback
+      if (!checkLength(password, bounds.password.minLength, bounds.password.maxLength)) {
 
+        // ### Verify Callback
+
+        // Invoke `done` with `false` to indicate authentication
+        // failure
         return done(null,
 
           false,
 
-          { loginMessage : 'Invalid password entered.' });
+          // Return info message object
+          {loginMessage: 'Invalid password length.'}
+        );
       }
 
-      // Otherwise all is well; return successful user
-      return done(null, user);
-    });
-  }));
+      // Find a user whose email or username is the same as the passed
+      // in data
+
+      // Combat case sensitivity by converting username to lowercase
+      // characters
+      User.findOne({
+
+        // Model.find `$or` Mongoose condition
+        $or: [
+
+          {'username': username.toLowerCase()},
+
+          {'email': username.toLowerCase()}
+        ]
+      }, (err, user) => {
+
+        // If there are any errors, return the error before anything
+        // else
+        if (err)
+          return done(err);
+
+        // If no user is found, return a message
+        if (!user) {
+
+          return done(null,
+
+            false,
+
+            {
+              loginMessage: 'That user was not found. ' +
+              'Please enter valid user credentials.'
+            }
+          );
+        }
+
+        // If the user is found but the password is incorrect
+        if (!user.validPassword(password)) {
+
+          return done(null,
+
+            false,
+
+            {loginMessage: 'Invalid password entered.'});
+        }
+
+        // Otherwise all is well; return user token
+        return done(null,
+          jwt.sign({id: user.id}, jwtOptions.secretOrKey, {
+            expiresIn: jwtOptions.expiresIn
+          }));
+      });
+    }));
 };

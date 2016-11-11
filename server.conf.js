@@ -51,6 +51,7 @@ import cookieParser from 'cookie-parser';
 import session from 'express-session';
 
 import passportJWT from 'passport-jwt';
+import jwt from 'jsonwebtoken';
 
 // # Configuration
 
@@ -71,18 +72,17 @@ mongooseConf(mongoose);
 // Import PassportJS configuration
 import passportConf from './config/passport.conf.js';
 
-import jwtConf from './config/jwt.conf.js';
-
-let jwtOptions = jwtConf(passportJWT);
-
 // Pass Passport configuration our PassportJS instance
-passportConf(passport, passportJWT, jwtOptions);
-//jwtConf(passportJWT);
+passportConf(passport, passportJWT, jwt);
 
+function tokenExtract(req, res, next) {
+  req.jwt = jwt.decode(req.headers.authorization.split(' ')[1]);
+  next();
+}
 
 if (process.env.NODE_ENV === 'development' ||
-    process.env.NODE_ENV === 'test')
-  // Log every request to the console
+  process.env.NODE_ENV === 'test')
+// Log every request to the console
   app.use(morgan('dev'));
 
 // Read cookies (needed for authentication)
@@ -93,9 +93,9 @@ app.use(cookieParser());
 // Parse application/json
 app.use(bodyParser.json());
 // Parse application/vnd.api+json as json
-app.use(bodyParser.json({ type: 'application/vnd.api+json' }));
+app.use(bodyParser.json({type: 'application/vnd.api+json'}));
 // Parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({extended: true}));
 
 // Override with the X-HTTP-Method-Override header in the request. Simulate DELETE/PUT
 app.use(methodOverride('X-HTTP-Method-Override'));
@@ -107,11 +107,11 @@ app.use(express.static(__dirname + '/dist'));
 // Session secret
 app.use(session({
 
-  secret : process.env.SESSION_SECRET,
+  secret: process.env.SESSION_SECRET,
 
-  resave : true,
+  resave: true,
 
-  saveUninitialized : true
+  saveUninitialized: true
 }));
 
 app.use(passport.initialize());
@@ -129,7 +129,7 @@ let router = express.Router();
 import routes from './app/routes';
 
 // Pass in instances of the express app, router, and passport
-routes(app, router, passport, jwtOptions);
+routes(app, router, passport, jwt);
 
 // ### Ignition Phase
 

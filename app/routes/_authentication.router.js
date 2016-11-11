@@ -22,13 +22,21 @@
 
 // Load user model
 import User from '../models/user.model.js';
-import jwt from 'jsonwebtoken';
+import InvalidToken from '../models/inalid-token.model';
 
 // Load the Mongoose ObjectId function to cast string as
 // ObjectId
 let ObjectId = require('mongoose').Types.ObjectId;
 
-export default (app, router, passport, auth, admin, jwtOptions) => {
+
+export default (app, router, passport, auth, admin, jwt) => {
+  // Middleware for doing stuff with tokens, TODO put into some better place
+  function tokenExtract(req, res, next) {
+    let token = req.headers.authorization.split(' ')[1];
+    req.jwtDecode = jwt.decode(token);
+    req.jwt = token;
+    next();
+  }
 
   // ### Authentication API Routes
 
@@ -40,16 +48,8 @@ export default (app, router, passport, auth, admin, jwtOptions) => {
     res.send(req.isAuthenticated() ? req.user : '0');
   });
 
-  // Route to log a user in
+
   router.post('/auth/login', (req, res, next) => {
-
-    // Call `authenticate()` from within the route handler, rather than
-    // as a route middleware. This gives the callback access to the `req`
-    // and `res` object through closure.
-
-    // If authentication fails, `user` will be set to `false`. If an
-    // exception occured, `err` will be set. `info` contains a message
-    // set within the Local Passport strategy.
     passport.authenticate('local-login', (err, user, info) => {
 
       if (err)
@@ -75,12 +75,67 @@ export default (app, router, passport, auth, admin, jwtOptions) => {
         // Set HTTP status code `200 OK`
         res.status(200);
 
-        // Return the user object
-        res.send(req.user);
+        res.json({message: "ok", token: user});
       });
 
     })(req, res, next);
+
   });
+
+  router.get('/auth/me', passport.authenticate('jwt', {session: false}), tokenExtract, (req, res, next) => {
+    let id = req.jwtDecode.id;
+
+    User.findById(id, 'username email', (err, user) => {
+      if (err)
+        res.send(err);
+      else {
+        res.json({'user': user});
+      }
+
+    });
+  });
+
+  // Route to log a user in
+  /*router.post('/old/auth/login', (req, res, next) => {
+
+   // Call `authenticate()` from within the route handler, rather than
+   // as a route middleware. This gives the callback access to the `req`
+   // and `res` object through closure.
+
+   // If authentication fails, `user` will be set to `false`. If an
+   // exception occured, `err` will be set. `info` contains a message
+   // set within the Local Passport strategy.
+   passport.authenticate('local-login', (err, user, info) => {
+
+   if (err)
+   return next(err);
+
+   // If no user is returned...
+   if (!user) {
+
+   // Set HTTP status code `401 Unauthorized`
+   res.status(401);
+
+   // Return the info message
+   return next(info.loginMessage);
+   }
+
+   // Use login function exposed by Passport to establish a login
+   // session
+   req.login(user, (err) => {
+
+   if (err)
+   return next(err);
+
+   // Set HTTP status code `200 OK`
+   res.status(200);
+
+   // Return the user object
+   res.send(req.user);
+   });
+
+   })(req, res, next);
+   });*/
 
   router.post('/auth/signup', (req, res, next) => {
 
@@ -107,33 +162,40 @@ export default (app, router, passport, auth, admin, jwtOptions) => {
       }
 
       // Set HTTP status code `204 No Content`
-      res.sendStatus(204);
+      //res.sendStatus(204);
+      res.json({
+        status: 'ok',
+        message: 'Your account has been created successfully and is ready to use'
+      });
 
     })(req, res, next);
   });
 
   // Route to log a user out
-  router.post('/auth/logout', (req, res) => {
+  router.post('/auth/logout', passport.authenticate('jwt', {session: false}), tokenExtract, (req, res) => {
+    InvalidToken.create({
+      token: req.jwt,
+      expiresAt: parseInt(req.jwtDecode.exp + '000')
+    }, (err, message) => {
+      if (err)
+        res.send(err);
 
-    req.logOut();
-
-    // Even though the logout was successful, send the status code
-    // `401` to be intercepted and reroute the user to the appropriate
-    // page
-    res.sendStatus(401);
+      //res.sendStatus(401);
+      res.json(message);
+    });
   });
 
-  // Route to get the current user
-  // The `auth` middleware was passed in to this function from `routes.js`
+// Route to get the current user
+// The `auth` middleware was passed in to this function from `routes.js`
   router.get('/auth/user', auth, (req, res) => {
 
     // Send response in JSON to allow disassembly of object by functions
     res.json(req.user);
   });
 
-  // Route to delete a user. Accepts a url parameter in the form of a
-  // username, user email, or mongoose object id.
-  // The `admin` Express middleware was passed in from `routes.js`
+// Route to delete a user. Accepts a url parameter in the form of a
+// username, user email, or mongoose object id.
+// The `admin` Express middleware was passed in from `routes.js`
   router.delete('/auth/delete/:uid', admin, (req, res) => {
 
     User.remove({
@@ -174,7 +236,7 @@ export default (app, router, passport, auth, admin, jwtOptions) => {
 
   });
 
-  router.get('/auth/users', passport.authenticate('jwt', { session: false }), (req, res) => {
+  router.get('/auth/users', passport.authenticate('jwt', {session: false}), (req, res) => {
     User.find((err, users) => {
       if (err)
         res.send(err);
@@ -211,84 +273,22 @@ export default (app, router, passport, auth, admin, jwtOptions) => {
     });
   });
 
-  router.post('/auth/test/login', (req, res, next) => {
-    passport.authenticate('local-login', (err, user, info) => {
+  router.post('/auth/change-password', passport.authenticate('jwt', {session: false}), tokenExtract, (req, res) => {
 
-      if (err)
-        return next(err);
+    let newPassword = req.body.newpassword;
 
-      // If no user is returned...
-      if (!user) {
+    console.log(newPassword);
+    User.update({_id: req.jwtDecode.id}, {
+      password: newPassword,
+      passwordDate: Date.now
+    }, (err, numberAffected, rawResponse) => {
+      console.log(newPassword);
 
-        // Set HTTP status code `401 Unauthorized`
-        res.status(401);
+      res.json({'numberAffected': numberAffected, 'rawResponse': rawResponse});
 
-        // Return the info message
-        return next(info.loginMessage);
-      }
-
-      // Use login function exposed by Passport to establish a login
-      // session
-      req.login(user, (err) => {
-
-        if (err)
-          return next(err);
-
-        // Set HTTP status code `200 OK`
-        res.status(200);
-
-        // Return the user object
-        var payload = {id: user.id};
-        var token = jwt.sign(payload, jwtOptions.secretOrKey, {
-          expiresIn: 60
-        });
-
-        res.json({message: "ok", token: token});
-      });
-
-    })(req, res, next);
-
-    /*User.findOne({
-
-      // Model.find `$or` Mongoose condition
-      $or : [
-
-        { 'username' : username.toLowerCase() },
-
-        { 'email' : username.toLowerCase() }
-      ]
-    }, (err, user) => {
-
-      // If there are any errors, return the error before anything
-      // else
-      if (err) {
-        res.send(err);
-      }
-
-
-      // If no user is found, return a message
-      if (!user) {
-        res.status(401).json({message: "no such user found"});
-        return next("no such user found");
-      }
-
-      // If the user is found but the password is incorrect
-      if (!user.validPassword(password)) {
-        res.status(401).json({message: "passwords did not match"});
-      }
-
-      var payload = {id: user.id};
-      var token = jwt.sign(payload, jwtOptions.secretOrKey);
-
-      res.json({message: "ok", token: token});
-
-      // Otherwise all is well; return successful user
-      //return done(null, user);
-
-
-
-    });*/
+    });
 
   });
 
-};
+}
+;
