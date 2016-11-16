@@ -11,28 +11,18 @@ export class AuthenticationService {
   }
 
   login(username, password): Observable<boolean> {
-    return this.http.post('/api/auth/login', JSON.stringify({username: username, password: password}))
-      .map((response: Response) => {
-        let token = response.json().token;
+    let headers = new Headers();
 
-        if(token) {
-          this.token = token;
+    headers.append('Content-Type', 'application/json');
 
-          localStorage.setItem('currentUser', JSON.stringify({username: username, token: token}));
-
-          return true;
-        } else {
-          return false;
-        }
-    })
-  }
+    return this.http.post('/api/auth/login', JSON.stringify({username: username, password: password}),
+      {headers: headers})
+      .map(res => {
 
 
-  /*login(username, password): Observable<boolean> {
-    return this.http.post('/api/authenticate', JSON.stringify({username: username, password: password}))
-      .map((response: Response) => {
-        // login successful if there's a jwt token in the response
-        let token = response.json() && response.json().token;
+        let token = res.json() && res.json().token;
+
+
         if (token) {
           // set token property
           this.token = token;
@@ -46,7 +36,19 @@ export class AuthenticationService {
           // return false to indicate failed login
           return false;
         }
+        //res.json().token
       });
-  }*/
+  }
+
+
+  logout(): void {
+    // clear token remove user from local storage to log user out
+    this.http.get('/api/auth/logout')
+      .subscribe(res => {
+        console.log(res);
+      });
+    this.token = null;
+    localStorage.removeItem('currentUser');
+  }
 
 }

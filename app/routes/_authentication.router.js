@@ -72,6 +72,7 @@ export default (app, router, passport, auth, admin, jwt) => {
         if (err)
           return next(err);
 
+
         // Set HTTP status code `200 OK`
         res.status(200);
 

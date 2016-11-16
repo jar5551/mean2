@@ -1,9 +1,13 @@
 /**
  * Created by jarek on 11/11/2016.
  */
+
 import {Component} from '@angular/core';
+import {Router} from '@angular/router';
 
 import {AuthenticationService} from './../shared/services/authentication';
+
+
 
 @Component({
   // HTML tag for specifying this component
@@ -14,14 +18,38 @@ import {AuthenticationService} from './../shared/services/authentication';
 })
 
 export class Login {
+
+  loginData = {
+    login: '',
+    password: ''
+  };
+
+  error: string;
+
   constructor(private authenticationService: AuthenticationService) {
     console.log('login page!')
   }
 
   login() {
-    this.authenticationService.login('jarek', 'password')
+    this.authenticationService.login(this.loginData.login, this.loginData.password)
       .subscribe((res) => {
-        console.log(res);
-      })
+          console.log(res);
+          /*if (res === true) {
+            // login successful
+            this.router.navigate(['/']);
+          } else {
+            // login failed
+            this.error = 'Niepoprawne dane logowania';
+          }*/
+        },
+        (err) => {
+          this.error = 'Niepoprawne dane logowania';
+          console.log('err', err);
+        })
+
+  }
+
+  claerLoginError() {
+    this.error = '';
   }
 }
