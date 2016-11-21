@@ -3,10 +3,8 @@
  */
 
 import {Component} from '@angular/core';
-import {Router} from '@angular/router';
 
 import {AuthenticationService} from './../shared/services/authentication';
-
 
 
 @Component({
@@ -35,12 +33,12 @@ export class Login {
       .subscribe((res) => {
           console.log(res);
           /*if (res === true) {
-            // login successful
-            this.router.navigate(['/']);
-          } else {
-            // login failed
-            this.error = 'Niepoprawne dane logowania';
-          }*/
+           // login successful
+           this.router.navigate(['/']);
+           } else {
+           // login failed
+           this.error = 'Niepoprawne dane logowania';
+           }*/
         },
         (err) => {
           this.error = 'Niepoprawne dane logowania';
