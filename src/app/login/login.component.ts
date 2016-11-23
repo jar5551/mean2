@@ -2,6 +2,8 @@
  * Created by jarek on 11/11/2016.
  */
 
+import { Routes, Router } from '@angular/router';
+
 import {Component} from '@angular/core';
 
 import {AuthenticationService} from './../shared/services/authentication';
@@ -24,7 +26,10 @@ export class Login {
 
   error: string;
 
-  constructor(private authenticationService: AuthenticationService) {
+  constructor(
+    private router: Router,
+    private authenticationService: AuthenticationService
+  ) {
     console.log('login page!')
   }
 
@@ -32,6 +37,8 @@ export class Login {
     this.authenticationService.login(this.loginData.login, this.loginData.password)
       .subscribe((res) => {
           console.log(res);
+          //this.router.navigate(['/']);
+
           /*if (res === true) {
            // login successful
            this.router.navigate(['/']);
