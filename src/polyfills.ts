@@ -14,7 +14,7 @@ require('zone.js/dist/zone');
 // Typescript "emit helpers" polyfill
 require('ts-helpers');
 
-if ('production' === ENV) {
+/*if ('production' === ENV) {
   // Production
 
 } else {
@@ -24,4 +24,4 @@ if ('production' === ENV) {
 
   require('zone.js/dist/long-stack-trace-zone');
 
-}
+}*/
