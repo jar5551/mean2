@@ -48,7 +48,7 @@ module.exports = {
   entry: {
 
     'polyfills': './src/polyfills.ts',
-    'vendor': './src/vendor.ts',
+    //'vendor': './src/vendor.ts',
     // Our primary Angular 2 application
     'main': './src/main.ts',
 
