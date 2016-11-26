@@ -5,13 +5,13 @@ import { HttpModule } from '@angular/http';
 
 import { AppComponent } from './app.component';
 import { NewCmpComponent } from './new-cmp/new-cmp.component';
-import { NewCmp2Component } from './new-cmp2/new-cmp2.component';
+import { LoginComponent } from './login/login.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     NewCmpComponent,
-    NewCmp2Component
+    LoginComponent
   ],
   imports: [
     BrowserModule,

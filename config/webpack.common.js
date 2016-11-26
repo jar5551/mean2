@@ -102,7 +102,7 @@ module.exports = {
           // these packages have problems with their sourcemaps
           helpers.root('node_modules/rxjs'),
           helpers.root('node_modules/@angular2-material'),
-          helpers.root('node_modules/@angular')
+          helpers.root('node_modules/@angular'),
         ]
       }
 
@@ -157,8 +157,8 @@ module.exports = {
       // `require("!style!css!sass!./file.scss");`
       {
         test: /\.scss$/,
-        loader: 'style!css!autoprefixer-loader?browsers=last 2 versions!sass',
-        exclude: [ helpers.root('node_modules') ]
+        exclude: /node_modules/,
+        loader: 'style-loader!css-loader!sass-loader'
       }
 
     ]
