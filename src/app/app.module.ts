@@ -1,24 +1,31 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
+import {BrowserModule} from '@angular/platform-browser';
+import {NgModule} from '@angular/core';
+import {FormsModule} from '@angular/forms';
+import {HttpModule} from '@angular/http';
+import {MaterialModule} from '@angular/material';
 
-import { AppComponent } from './app.component';
-import { NewCmpComponent } from './new-cmp/new-cmp.component';
-import { LoginComponent } from './login/login.component';
+import {AppComponent} from './app.component';
+import {LoginComponent} from './login/login.component';
+
+import {routing, routedComponents} from './app.routing';
+import {MainHeaderDirective} from './directives/main-header.directive';
 
 @NgModule({
   declarations: [
     AppComponent,
-    NewCmpComponent,
-    LoginComponent
+    LoginComponent,
+    routedComponents,
+    MainHeaderDirective
   ],
   imports: [
     BrowserModule,
     FormsModule,
-    HttpModule
+    HttpModule,
+    routing,
+    MaterialModule.forRoot()
   ],
   providers: [],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+}
