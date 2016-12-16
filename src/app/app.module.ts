@@ -8,14 +8,12 @@ import {AppComponent} from './app.component';
 import {LoginComponent} from './login/login.component';
 
 import {routing, routedComponents} from './app.routing';
-import {MainHeaderDirective} from './directives/main-header.directive';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
-    routedComponents,
-    MainHeaderDirective
+    routedComponents
   ],
   imports: [
     BrowserModule,
