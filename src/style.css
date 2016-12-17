@@ -1,7 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
 
-@import '~@angular/material/core/theming/prebuilt/deeppurple-amber.css';
+@import url('https://fonts.googleapis.com/css?family=Lato:300,400,700,900&subset=latin-ext');
+
+@import '~@angular/material/core/theming/prebuilt/pink-bluegrey.css';
 
 body {
     background-color: red;
+    font-family: 'Lato', sans-serif;
 }

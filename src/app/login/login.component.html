@@ -1,3 +1,29 @@
 <p>
-  login works!
+    login works!
 </p>
+<button md-fab>
+    <md-icon class="md-24">add</md-icon>
+</button>
+
+<button md-raised-button color="primary">PRIMARY</button>
+<button md-raised-button color="accent">ACCENT</button>
+<button md-raised-button color="warn">WARN</button>
+
+<button md-button disabled>OFF</button>
+<button md-raised-button [disabled]="isDisabled">OFF</button>
+<button md-mini-fab [disabled]="isDisabled"><md-icon>check</md-icon></button>
+
+<md-radio-group>
+    <md-radio-button value="option_1">1</md-radio-button>
+    <md-radio-button value="option_2">2</md-radio-button>
+</md-radio-group>
+
+<md-radio-group>
+    <md-radio-button value="option_1">1</md-radio-button>
+    <md-radio-button value="option_2">2</md-radio-button>
+</md-radio-group>
+
+<!--
+<md-input-container>
+    <input md-input>
+</md-input-container>-->
