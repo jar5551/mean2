@@ -20,7 +20,7 @@
 
 // ## Authentication API object
 
-// Load user model
+// Load user modelr
 import User from '../models/user.model.js';
 import InvalidToken from '../models/inalid-token.model';
 

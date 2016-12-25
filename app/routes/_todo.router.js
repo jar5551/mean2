@@ -18,7 +18,7 @@
 // PUT        /api/todo/:todo_id    Update a todo item with new info
 
 // Load the todo model
-import Todo from '../models/todo.model';
+import Todo from '../models/todeo.model';
 
 export default (app, router) => {
 
